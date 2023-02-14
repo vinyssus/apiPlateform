@@ -3,12 +3,29 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
 use App\Repository\DragonTreasorRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DragonTreasorRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    description:'my first description.',
+    operations:[
+
+        new Post(),
+        new Put(),
+        new GetCollection(),
+        new Delete(),
+        new Patch(),
+        new Get(),
+    ]
+)]
 class DragonTreasor
 {
     #[ORM\Id]
@@ -22,6 +39,9 @@ class DragonTreasor
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    /**
+     * The estimated value of this treasure, in gold coins.
+     */
     #[ORM\Column]
     private ?int $value = null;
 
