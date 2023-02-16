@@ -2,21 +2,34 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Put;
 use App\Repository\DragonTreasorRepository;
+use Carbon\Carbon;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DragonTreasorRepository::class)]
 #[ApiResource(
     shortName: 'Treasure',
     description:'my first description.',
+    normalizationContext:[
+       'groups' => ['treasure:read'],
+    ],
+    denormalizationContext:[
+        'groups' => ['treasure:write'],
+     ],
     operations:[
 
         new Post(),
@@ -24,7 +37,8 @@ use Doctrine\ORM\Mapping as ORM;
         new GetCollection(),
         new Delete(uriTemplate:'deleteById'),
         new Patch(),
-    ]
+    ],
+    paginationItemsPerPage: 10
 )]
 class DragonTreasor
 {
@@ -34,24 +48,35 @@ class DragonTreasor
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['treasure:read', 'treasure:write'])]
+    #[ApiFilter(SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank()]
+    #[Assert\Length(min: 2, max: 50, maxMessage: 'Describe your loot in 50 chars or less')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['treasure:read', 'treasure:write'])]
+    #[ApiFilter(SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank]
     private ?string $description = null;
 
     /**
      * The estimated value of this treasure, in gold coins.
      */
     #[ORM\Column]
+    #[ApiFilter(RangeFilter::class)]
     private ?int $value = null;
 
     #[ORM\Column]
+    #[Groups(['treasure:read', 'treasure:write'])]
     private ?int $coolFactor = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['treasure:read', 'treasure:write'])]
+    #[ApiFilter(BooleanFilter::class)]
     private ?bool $isPublish = null;
 
     public function getId(): ?int
@@ -71,10 +96,21 @@ class DragonTreasor
         return $this;
     }
 
+
     public function getDescription(): ?string
     {
         return $this->description;
     }
+
+    #[SerializedName('description')]
+    #[Groups(['treasure:write'])]
+    public function setTextDescription(string $description): self
+    {
+        $this->description = nl2br($description);
+        return $this;
+    }
+
+    
 
     public function setDescription(string $description): self
     {
@@ -110,6 +146,11 @@ class DragonTreasor
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getCreatedAtAgo(): string
+    {
+        return Carbon::instance($this->createdAt)->diffForHumans();
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): self
