@@ -38,7 +38,14 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(uriTemplate:'deleteById'),
         new Patch(),
     ],
-    paginationItemsPerPage: 10
+    paginationItemsPerPage: 10,
+    formats: [
+        'jsonld',
+        'json',
+        'html',
+        'jsonhal',
+        'csv' => 'text/csv',
+    ],
 )]
 class DragonTreasor
 {
@@ -65,10 +72,13 @@ class DragonTreasor
      */
     #[ORM\Column]
     #[ApiFilter(RangeFilter::class)]
+    #[Assert\GreaterThanOrEqual(0)]
     private ?int $value = null;
 
     #[ORM\Column]
     #[Groups(['treasure:read', 'treasure:write'])]
+    #[Assert\GreaterThanOrEqual(0)]
+    #[Assert\LessThanOrEqual(10)]
     private ?int $coolFactor = null;
 
     #[ORM\Column]
