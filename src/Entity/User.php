@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -46,6 +48,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     #[Assert\NotBlank]
     private ?string $username = null;
+
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Dragontreasor::class)]
+    private Collection $dragontreasors;
+
+    public function __construct()
+    {
+        $this->dragontreasors = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -125,6 +135,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): self
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Dragontreasor>
+     */
+    public function getDragontreasors(): Collection
+    {
+        return $this->dragontreasors;
+    }
+
+    public function addDragontreasor(Dragontreasor $dragontreasor): self
+    {
+        if (!$this->dragontreasors->contains($dragontreasor)) {
+            $this->dragontreasors->add($dragontreasor);
+            $dragontreasor->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDragontreasor(Dragontreasor $dragontreasor): self
+    {
+        if ($this->dragontreasors->removeElement($dragontreasor)) {
+            // set the owning side to null (unless already changed)
+            if ($dragontreasor->getOwner() === $this) {
+                $dragontreasor->setOwner(null);
+            }
+        }
 
         return $this;
     }
