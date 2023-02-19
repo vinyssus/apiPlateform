@@ -56,6 +56,7 @@ final class DragonTreasorFactory extends ModelFactory
             'isPublish' => self::faker()->boolean(),
             'name' => self::faker()->randomElement(self::TREASURE_NAMES),
             'value' => self::faker()->randomNumber(),
+            'owner' => UserFactory::new(),
         ];
     }
 
