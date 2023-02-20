@@ -55,14 +55,14 @@ class DragonTreasor
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Groups(['treasure:read', 'treasure:write', 'user:write'])]
     #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 2, max: 50, maxMessage: 'Describe your loot in 50 chars or less')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Groups(['treasure:read', 'treasure:write', 'user:write'])]
     #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank]
     private ?string $description = null;
@@ -71,21 +71,23 @@ class DragonTreasor
      * The estimated value of this treasure, in gold coins.
      */
     #[ORM\Column]
+    #[Groups(['treasure:read', 'treasure:write', 'user:write'])]
     #[ApiFilter(RangeFilter::class)]
     #[Assert\GreaterThanOrEqual(0)]
     private ?int $value = null;
 
     #[ORM\Column]
-    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Groups(['treasure:read', 'treasure:write', 'user:write'])]
     #[Assert\GreaterThanOrEqual(0)]
     #[Assert\LessThanOrEqual(10)]
     private ?int $coolFactor = null;
 
     #[ORM\Column]
+    #[Groups(['treasure:read', 'treasure:write', 'user:write'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Groups(['treasure:read', 'treasure:write', 'user:write'])]
     #[ApiFilter(BooleanFilter::class)]
     private ?bool $isPublish = null;
 
