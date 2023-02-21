@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(),
         new Put(),
         new GetCollection(),
-        new Delete(uriTemplate:'deleteById'),
+        new Delete(uriTemplate:'DeleteById'),
         new Patch(),
     ],
     paginationItemsPerPage: 10,
