@@ -42,14 +42,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255)]
+    #[Groups(['user:read', 'user:write', 'treasure:write'])]
+    #[Assert\NotBlank]
+    private ?string $username = null;
+
     #[ORM\Column(length: 180, unique: true)]
     #[Groups(['user:read', 'user:write'])]
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
-
-    #[ORM\Column]
-    private array $roles = [];
 
     /**
      * @var string The hashed password
@@ -58,10 +60,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:write'])]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['user:read', 'user:write', 'treasure:write'])]
-    #[Assert\NotBlank]
-    private ?string $username = null;
+    #[Groups(['user:read', 'user:write'])]
+    #[ORM\Column]
+    private array $roles = [];
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: DragonTreasor::class, cascade:['persist'])]
     #[Groups(['user:read', 'user:write'])]
